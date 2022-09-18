@@ -61,6 +61,14 @@ function installPipRequirements(){
 }
 
 function runCdk(){
+	# fix permission issues with directory that arise with alpine 14
+	user=$(stat -c "%u" node_modules)
+	group=$(stat -c "%g" node_modules)
+	addgroup -g $group github
+	adduser -u $user -G github -D github
+	mkdir -p cdk.out
+	chown github:github cdk.out
+
 	echo "Run cdk ${INPUT_CDK_SUBCOMMAND} ${*} \"${INPUT_CDK_STACK}\""
 	output=$(cdk ${INPUT_CDK_SUBCOMMAND} ${*} "${INPUT_CDK_STACK}" 2>&1)
 	exitCode=${?}
